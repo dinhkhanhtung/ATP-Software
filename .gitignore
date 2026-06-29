@@ -1,0 +1,49 @@
+# Loại bỏ cơ sở dữ liệu chứa thông tin tài khoản cá nhân
+*.db
+*.sqlite
+*.sqlite3
+
+# Loại bỏ các file cấu hình môi trường chứa token/key bí mật
+.env
+.env.*
+config.local.json
+
+# Loại bỏ các file tạm, log của hệ thống và ứng dụng
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Loại bỏ các file đóng gói thực thi (.exe) và file nén
+*.exe
+*.zip
+*.rar
+*.7z
+
+# Loại bỏ các file asar và backup asar
+*.asar
+*.asar.backup
+*.asar.original
+
+# Loại bỏ các file dll, pak, bin, dat lớn của Electron/Chromium ở cấp độ phân phối
+*.dll
+*.pak
+*.bin
+*.dat
+app.manifest
+
+# Loại bỏ các file thư viện lớn của Python / PyTorch / OpenCV
+*.pyd
+*.lib
+*.th
+*.pth
+*.pt
+
+# Loại bỏ các thư mục thư viện và chromium nhúng
+**/node_modules/
+**/Chrome-bin/
+**/chromeDriver/
+**/swiftshader/
+**/resources_tools/

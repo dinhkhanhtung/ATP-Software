@@ -1,0 +1,3 @@
+provider: generic
+url: https://crm.alosoft.vn/release-fbprov2
+updaterCacheDirName: simplefacebookprov2-updater

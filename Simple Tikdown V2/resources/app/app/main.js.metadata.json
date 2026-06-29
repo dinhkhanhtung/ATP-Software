@@ -1,0 +1,4 @@
+{
+  "summary":  "File main.js tạm thời được xây dựng lại hoàn chỉnh để tích hợp cơ chế bắt lỗi try-catch ở tất cả các mức (global, createWindow) và tự động bật DevTools.",
+  "updatedAt":  "2026-06-23T23:46:27.763133900Z"
+}

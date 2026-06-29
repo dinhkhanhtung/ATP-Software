@@ -1,0 +1,126 @@
+<!DOCTYPE html><!--
+|                   _
+|    /|           / / |\
+|   / |          / /  | \
+|  / /          / /    \ \
+|  \ \    ___  / /     / /
+|   \ |  /   \/ /     | /
+|    \| |      /      |/
+|        \____/
+|
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title id="titleUserWindows">Simple Chat Pro - ATP Software</title>
+    <meta name="description" content="Chrome-style tabs in HTML/CSS/JS.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="css/chrome-tabs.css" rel="stylesheet">
+</head>
+<body>
+<div class="mock-browser">
+    <div class="chrome-tabs" style="--tab-content-margin: 9px">
+        <div class="chrome-tabs-content">
+        </div>
+        <div class="chrome-tabs-bottom-bar"></div>
+        <!-- Styles to prevent flash after JS initialization -->
+        <style>
+            .chrome-tabs .chrome-tab {
+                width: 258px;
+                border-radius: 7px;
+            }
+
+            .chrome-tabs .chrome-tab:nth-child(1) {
+                transform: translate3d(0px, 0, 0)
+            }
+
+            .chrome-tabs .chrome-tab:nth-child(2) {
+                transform: translate3d(239px, 0, 0)
+            }
+        </style>
+    </div>
+    <div class="chrome-tabs-optional-shadow-below-bottom-bar"></div>
+    <div class="mock-browser-content">
+    </div>
+</div>
+
+<script src="https://unpkg.com/draggabilly@2.2.0/dist/draggabilly.pkgd.min.js"></script>
+<script src="js/chrome-tabs.js"></script>
+<script>
+
+    (function () {
+        var el = document.querySelector('.chrome-tabs')
+        var chromeTabs = new ChromeTabs()
+        chromeTabs.init(el)
+        let ipc = require("electron").ipcRenderer;
+        ipc.on("users", (event, id, name, user, loadTab, logo, key) => {
+            try {
+                document.getElementById('titleUserWindows').innerText = 'Simple Chat Pro - ' + key;
+            } catch (e) {
+                console.log(e);
+            }
+            chromeTabs.addTab({
+                title: name,
+                id: id,
+                user: user,
+                loadTab: loadTab,
+                favicon: logo,
+            })
+        });
+
+        chromeTabs.init(el)
+        ipc.on("setTabAfterRemove", function (event, id) {
+            chromeTabs.setTabAfterRemove({
+                id: id,
+            })
+        });
+
+        chromeTabs.init(el)
+        ipc.on("setActive", function (event, id) {
+            chromeTabs.setActiveTab({
+                id: id,
+            })
+        });
+
+        chromeTabs.init(el)
+        ipc.on("setActiveTabFromNotification", function (event, id) {
+            chromeTabs.setActiveTabFromNotification({
+                id: id,
+            })
+        });
+
+        chromeTabs.init(el)
+        ipc.on("setNotiTab", function (event, id) {
+            chromeTabs.setNotiTab({
+                id: id,
+            })
+        });
+
+        chromeTabs.init(el)
+        ipc.on("getTabActive", function (event) {
+            chromeTabs.getUserIdActive()
+        });
+
+        el.addEventListener('activeTabChange', ({detail}) => console.log('Active tab changed', detail.tabEl))
+        el.addEventListener('tabAdd', ({detail}) => console.log('Tab added', detail.tabEl))
+        el.addEventListener('tabRemove', ({detail}) => console.log('Tab removed', detail.tabEl))
+
+
+        document.querySelector('button[data-remove-tab]').addEventListener('click', _ => {
+            chromeTabs.removeTab(chromeTabs.activeTabEl)
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.ctrlKey && event.key === 't') {
+                chromeTabs.addTab({
+                    title: 'New Tab',
+                    favicon: false
+                })
+            }
+        })
+    })();
+
+</script>
+</body>
+</html>

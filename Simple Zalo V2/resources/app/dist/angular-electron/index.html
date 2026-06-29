@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title id="titleWindowsApp">Simple Zalo V2</title>
+    <base href="./">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="assets/jquery-1.11.1.min.js"></script>
+    <script>
+        window.jQuery = window.$ = require('jquery');
+    </script>
+    <style>html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}body{margin:0;}@media print{*{color:#000!important;text-shadow:none!important;background:transparent!important;-webkit-box-shadow:none!important;box-shadow:none!important;}}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}:before,:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}html{font-size:10px;-webkit-tap-highlight-color:rgba(0,0,0,0);}body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff;}</style><link href="assets/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="assets/bootstrap.min.css"></noscript>
+    <script src="assets/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="assets/bootstrap-select.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="assets/bootstrap-select.min.css"></noscript>
+    <script src="assets/bootstrap-select.min.js"></script>
+    <script src="assets/moment.min.js"></script>
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-VYTY80PDSD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-VYTY80PDSD');
+    </script>
+    <script>
+      window.moment = require('moment');
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/tooltipster/dist/css/tooltipster.bundle.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="assets/tooltipster/dist/css/tooltipster.bundle.min.css"></noscript>
+    <script type="text/javascript" src="assets/tooltipster/dist/js/tooltipster.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        window.jQuery = window.$ = require('jquery');
+    </script>
+    <script>
+        console.warn("require('toastr')")
+        window.toastr = require('toastr');
+        console.warn(require('toastr'));
+    </script>
+    <script>
+        $(document).ready(function() {
+          $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function() {
+              $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+          });
+          $("#myInputProduct").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTableProduct tr").filter(function() {
+              $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+          });
+          $('.tooltip').tooltipster({
+            animation: 'fade',
+            delay: 0,
+            theme: 'tooltipster-punk',
+            side: 'right'
+          });
+        });
+      </script>
+
+      <script>
+        window.atplivechatSettings = {"position":"right","type":"standard","launcherTitle":""};
+        (function(d,t) {
+            var BASE_URL="https://livechat.atpsoftware.com.vn";
+            var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=BASE_URL+"/packs/js/sdk.js";
+            g.async = true;
+            s.parentNode.insertBefore(g,s);
+            g.onload=function(){
+            window.atplivechatSDK.run({
+                websiteToken: 'KL7BghpcFAPg9ZYdV9hdCUum',
+                baseUrl: BASE_URL
+            })
+            }
+        })(document,"script");
+      </script>
+
+<style>html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}body{margin:0;}@media print{*,:after,:before{color:#000!important;text-shadow:none!important;background:0 0!important;box-shadow:none!important;}}*,:after,:before{box-sizing:border-box;}html{font-size:10px;-webkit-tap-highlight-color:rgba(0,0,0,0);}body{font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff;}</style><link rel="stylesheet" href="styles.93aa5a8d3c854b8c7698.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles.93aa5a8d3c854b8c7698.css"></noscript></head>
+
+<body>
+<app-root></app-root>
+
+<script>
+  $(document).ready(function(){
+    $('[data-toggle="tab tooltip"]').tooltip();
+  });
+  </script>
+<script src="runtime.ce182e8b9b6cdb77c12a.js" defer></script><script src="polyfills-es5.c7bd78593d2edf3aeeb0.js" nomodule defer></script><script src="polyfills.bdae22b18bd8a6b6e954.js" defer></script><script src="scripts.58140fd50dfc781e4fb5.js" defer></script><script src="main.fd637bff99f2e2db7791.js" defer></script>
+
+
+</body></html>

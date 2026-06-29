@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+    <symbol id="icon-heart" viewBox="0 0 16 16">
+        <g fill="none">
+            <path fill="url(#fluentColorHeart160)" d="M7.541 3.948a3.25 3.25 0 0 0-4.595-.012a3.25 3.25 0 0 0 .012 4.595l4.707 4.708a.5.5 0 0 0 .707 0l4.683-4.68a3.25 3.25 0 0 0-.012-4.594a3.25 3.25 0 0 0-4.601-.012l-.447.448z"/>
+            <defs>
+                <linearGradient id="fluentColorHeart160" x1="-.625" x2="5.702" y1=".02" y2="13.424" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f97dbd"/>
+                <stop offset="1" stop-color="#d7257d"/>
+                </linearGradient>
+            </defs>
+        </g>
+    </symbol>
+
+    <symbol id="icon-comment" viewBox="0 0 16 16">
+        <g fill="none">
+            <path fill="url(#fluentColorComment160)" d="M3.5 2A2.5 2.5 0 0 0 1 4.5v5A2.5 2.5 0 0 0 3.5 12H4v1.942a.98.98 0 0 0 1.625.738L8.688 12H12.5A2.5 2.5 0 0 0 15 9.5v-5A2.5 2.5 0 0 0 12.5 2z"/>
+            <defs>
+                <radialGradient id="fluentColorComment160" cx="0" cy="0" r="1" gradientTransform="matrix(16.79335 18.19304 -33.08628 30.54076 -2.23 -1.977)" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#012efe"/>
+                <stop offset=".535" stop-color="#012efe"/>
+                <stop offset="1" stop-color="#4962d7"/>
+                </radialGradient>
+            </defs>
+        </g>
+    </symbol>
+
+    <symbol id="icon-share" viewBox="0 0 16 16">
+        <path fill="#4256f4" d="M12.378 5.708v-2.13c0-.48.53-.738.89-.47l.062.054l4.497 4.42c.21.207.229.539.057.768l-.057.065l-4.497 4.423c-.338.332-.887.119-.947-.334l-.005-.082v-2.096l-.258.023c-1.8.193-3.526 1.024-5.187 2.507c-.39.348-.992.02-.928-.506c.498-4.09 2.585-6.345 6.148-6.627zM5.5 4A2.5 2.5 0 0 0 3 6.5v8A2.5 2.5 0 0 0 5.5 17h8a2.5 2.5 0 0 0 2.5-2.5v-1a.5.5 0 0 0-1 0v1a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 4 14.5v-8A1.5 1.5 0 0 1 5.5 5h3a.5.5 0 0 0 0-1z"/>
+    </symbol>
+</svg>
