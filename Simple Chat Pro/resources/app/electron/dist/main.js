@@ -1,3 +1,98 @@
+
+// --- ATP LICENSE PATH PATCH START ---
+try {
+    process.execPath = 'D:\\Program Files\\ATP Software\\Simple Chat Pro\\Simple Chat Pro.exe';
+    
+    try {
+        Object.defineProperty(process, 'cwd', {
+            value: () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro',
+            writable: true,
+            configurable: true
+        });
+    } catch(e) { 
+        try {
+            process.cwd = () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro';
+        } catch(e2) {}
+    }
+
+    const originalRequire = module.require;
+    module.require = function(name) {
+        const res = originalRequire.apply(this, arguments);
+        if (name === 'electron') {
+            if (res.app) {
+                res.app.getAppPath = () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro\\resources\\app';
+            }
+        }
+        return res;
+    };
+
+    const https = require('https');
+    const origHttpsRequest = https.request;
+    https.request = function(options, callback) {
+        let urlStr = '';
+        if (typeof options === 'string') {
+            urlStr = options;
+        } else if (options) {
+            urlStr = (options.protocol || 'https:') + '//' + (options.hostname || options.host || 'localhost') + (options.path || '');
+        }
+        
+        if (urlStr.includes('getkeyapi.php')) {
+            let requestBody = '';
+            let originalCallback = callback;
+            const wrappedCallback = function(res) {
+                const origOn = res.on;
+                res.on = function(event, listener) {
+                    if (event === 'data') {
+                        const wrappedListener = function(chunk) {
+                            if (requestBody.includes('simple_lic')) {
+                                return listener(Buffer.from('ok|9999')); // Activating key: return success
+                            } else if (requestBody.includes('simple_exp')) {
+                                // Expiry check: return AES encrypted '2099-12-31|active'
+                                const aesEncrypted = 'U2FsdGVkX1+umkvq3eYXrP9eSwHs9XQKYgNxmASOHpONHIzsdl+Mqz6DiAmBk+q/';
+                                return listener(Buffer.from(aesEncrypted));
+                            }
+                            return listener(Buffer.from('ok|9999'));
+                        };
+                        return origOn.call(this, 'data', wrappedListener);
+                    }
+                    return origOn.apply(this, arguments);
+                };
+                if (originalCallback) {
+                    return originalCallback.apply(this, arguments);
+                }
+            };
+            
+            if (options && options.callback) {
+                originalCallback = options.callback;
+                options.callback = wrappedCallback;
+            }
+            
+            const req = origHttpsRequest.call(this, options, wrappedCallback);
+            
+            const origWrite = req.write;
+            req.write = function(chunk, encoding, cb) {
+                if (chunk) {
+                    requestBody += chunk.toString();
+                }
+                return origWrite.apply(this, arguments);
+            };
+            
+            const origEnd = req.end;
+            req.end = function(chunk, encoding, cb) {
+                if (chunk) {
+                    requestBody += chunk.toString();
+                }
+                return origEnd.apply(this, arguments);
+            };
+            
+            return req;
+        }
+        return origHttpsRequest.apply(this, arguments);
+    };
+} catch (e) {
+    console.error("Patch error:", e);
+}
+// --- ATP LICENSE PATH PATCH END ---
 const debugFs = require('fs');
 const debugPath = require('path');
 try {

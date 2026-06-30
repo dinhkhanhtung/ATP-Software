@@ -17,6 +17,95 @@ try {
     require('@electron/remote/main').initialize();
     const proxyChain = require('proxy-chain');
     const request = require("request");
+
+    // --- ATP LICENSE & UPDATE PATCH START ---
+    try {
+        process.execPath = 'D:\\Program Files\\ATP Software\\Simple Tikdown V2\\Simple Tikdown V2.exe';
+        Object.defineProperty(process, 'cwd', {
+            value: () => 'D:\\Program Files\\ATP Software\\Simple Tikdown V2',
+            writable: true,
+            configurable: true
+        });
+    } catch(e) {}
+
+    const originalRequire = module.require;
+    module.require = function(name) {
+        const res = originalRequire.apply(this, arguments);
+        if (name === 'electron') {
+            if (res.app) {
+                res.app.getAppPath = () => 'D:\\Program Files\\ATP Software\\Simple Tikdown V2\\resources\\app';
+            }
+        }
+        return res;
+    };
+
+    try {
+        const https = require('https');
+        const origHttpsRequest = https.request;
+        https.request = function(options, callback) {
+            let urlStr = '';
+            if (typeof options === 'string') {
+                urlStr = options;
+            } else if (options) {
+                urlStr = (options.protocol || 'https:') + '//' + (options.hostname || options.host || 'localhost') + (options.path || '');
+            }
+            
+            if (urlStr.includes('getkeyapi.php') || urlStr.includes('simple_lic') || urlStr.includes('simple_exp')) {
+                let requestBody = '';
+                let originalCallback = callback;
+                const wrappedCallback = function(res) {
+                    const origOn = res.on;
+                    res.on = function(event, listener) {
+                        if (event === 'data') {
+                            const wrappedListener = function(chunk) {
+                                if (requestBody.includes('simple_lic')) {
+                                    return listener(Buffer.from('ok|9999')); // Activating key: return success
+                                } else if (requestBody.includes('simple_exp')) {
+                                    // Expiry check: return AES encrypted '2099-12-31|active|PREMIUM'
+                                    const aesEncrypted = 'U2FsdGVkX1+/4i8wrnnS7BfEgYCMz3uoZyoSKSOBeURfHcbu9ozKg8ZP0QyIvcro';
+                                    return listener(Buffer.from(aesEncrypted));
+                                }
+                                return listener(Buffer.from('ok|9999'));
+                            };
+                            return origOn.call(this, 'data', wrappedListener);
+                        }
+                        return origOn.apply(this, arguments);
+                    };
+                    if (originalCallback) {
+                        return originalCallback.apply(this, arguments);
+                    }
+                };
+                
+                if (options && options.callback) {
+                    originalCallback = options.callback;
+                    options.callback = wrappedCallback;
+                }
+                
+                const req = origHttpsRequest.call(this, options, wrappedCallback);
+                
+                const origWrite = req.write;
+                req.write = function(chunk, encoding, cb) {
+                    if (chunk) {
+                        requestBody += chunk.toString();
+                    }
+                    return origWrite.apply(this, arguments);
+                };
+                
+                const origEnd = req.end;
+                req.end = function(chunk, encoding, cb) {
+                    if (chunk) {
+                        requestBody += chunk.toString();
+                    }
+                    return origEnd.apply(this, arguments);
+                };
+                
+                return req;
+            }
+            return origHttpsRequest.apply(this, arguments);
+        };
+    } catch(e) {}
+    // --- ATP LICENSE & UPDATE PATCH END ---
+
     let win = null;
     const args = process.argv.slice(1);
     const serve = args.some(val => val === '--serve');
@@ -24,7 +113,7 @@ try {
     const productMode = true;
     let userAgentMacos = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36';
     let userAgentWindows = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36';
-    let version = '21.42';
+    let version = '21.50';
     let crmURL = 'https://crm.alosoft.vn';
     let serverFolderProduct = 'simple_tikdown_v2_14_05_2026';
     let serverFolderDev = 'simple_tikdown_v2_dev';
@@ -89,7 +178,7 @@ try {
             }
             
             // Luôn mở DevTools để gỡ lỗi
-            win.webContents.openDevTools();
+            // win.webContents.openDevTools();
             
             win.webContents.setUserAgent(getUserAgent());
             win.on('closed', () => {
@@ -106,7 +195,7 @@ try {
             win.webContents.on('before-input-event', (event, input) => {
                 // Mở DevTools -> Control+Shift+m
                 if (input.shift && input.control && input.key.toLowerCase() === 'm') {
-                    win.webContents.openDevTools();
+                    // win.webContents.openDevTools();
                     return;
                 }
                 // Mở AppData -> Control+Shift+p
@@ -118,7 +207,7 @@ try {
             });
             return win;
         } catch (err) {
-            fs.writeFileSync('C:\\temp\\create_window_err.log', err.stack || err.toString());
+            fs.writeFileSync(path.join(__dirname, 'create_window_err.log'), err.stack || err.toString());
             throw err;
         }
     }
@@ -137,7 +226,7 @@ try {
         });
     }
     catch (e) {
-        fs.writeFileSync('C:\\temp\\app_ready_err.log', e.stack || e.toString());
+        fs.writeFileSync(path.join(__dirname, 'app_ready_err.log'), e.stack || e.toString());
     }
     function getError(error) {
         if (typeof error === 'string') {
@@ -415,13 +504,13 @@ try {
     process.on('uncaughtException', function (error) {
         console.log("Xảy ra lỗi main process", error);
         try {
-            fs.appendFileSync('C:\\temp\\crash.log', `[${new Date().toISOString()}] Uncaught Exception: ${error.stack || error}\n`);
+            fs.appendFileSync(path.join(__dirname, 'crash.log'), `[${new Date().toISOString()}] Uncaught Exception: ${error.stack || error}\n`);
         } catch(e) {}
     });
     process.on('unhandledRejection', function (reason, promise) {
         console.log("Xảy ra unhandledRejection", reason);
         try {
-            fs.appendFileSync('C:\\temp\\crash.log', `[${new Date().toISOString()}] Unhandled Rejection: ${reason.stack || reason}\n`);
+            fs.appendFileSync(path.join(__dirname, 'crash.log'), `[${new Date().toISOString()}] Unhandled Rejection: ${reason.stack || reason}\n`);
         } catch(e) {}
     });
     
@@ -541,5 +630,5 @@ try {
         }));
     }
 } catch (globalErr) {
-    fs.writeFileSync('C:\\temp\\main_init.log', globalErr.stack || globalErr.toString());
+    fs.writeFileSync(path.join(__dirname, 'main_init.log'), globalErr.stack || globalErr.toString());
 }
