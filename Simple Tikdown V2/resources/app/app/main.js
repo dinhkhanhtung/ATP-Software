@@ -129,11 +129,37 @@ try {
     }
     function createWindow() {
         try {
+            // Tự động kiểm tra file CLI và update DB Settings
+            try {
+                const appDataPath = electron_1.app.getPath('userData');
+                const cliPath = path.join(appDataPath, 'Core', 'video_downloader_cli.exe');
+                if (fs.existsSync(cliPath) && fs.statSync(cliPath).size > 10000000) {
+                    const dbFile = path.join(appDataPath, 'db_tiktok_v2.db');
+                    if (fs.existsSync(dbFile)) {
+                        const sqlite3 = require('sqlite3').verbose();
+                        const db = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE);
+                        const now = Date.now();
+                        db.get("SELECT * FROM Settings WHERE key = 'binary.video-downloader-cli';", [], (err, row) => {
+                            if (!err) {
+                                if (row) {
+                                    db.run("UPDATE Settings SET value = '1.0.1', updatedAt = ? WHERE key = 'binary.video-downloader-cli';", [now], () => db.close());
+                                } else {
+                                    db.run("INSERT INTO Settings (key, value, createdAt, updatedAt) VALUES ('binary.video-downloader-cli', '1.0.1', ?, ?);", [now, now], () => db.close());
+                                }
+                            } else {
+                                db.close();
+                            }
+                        });
+                    }
+                }
+            } catch(e) {}
+
             try {
                 electron_1.app.commandLine.appendSwitch('auto-detect', 'false');
                 electron_1.app.commandLine.appendSwitch('no-proxy-server');
                 electron_1.app.commandLine.appendSwitch('ignore-certificate-errors');
                 electron_1.app.commandLine.appendSwitch("no-sandbox");
+                electron_1.app.commandLine.appendSwitch("allow-file-access-from-files");
             }
             catch (e) {
                 console.log(e);
@@ -239,6 +265,22 @@ try {
     }
     function electronSendRequest({ url, method, headers, proxy, dataPost }) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            // --- ATP LICENSE & KEY MOCK START ---
+            if (url && (url.includes('getkeyapi.php') || url.includes('simple_lic') || url.includes('simple_exp'))) {
+                let mockData = 'ok|9999';
+                const bodyStr = dataPost ? dataPost.toString() : '';
+                if (url.includes('simple_exp') || bodyStr.includes('simple_exp')) {
+                    mockData = 'U2FsdGVkX1+/4i8wrnnS7BfEgYCMz3uoZyoSKSOBeURfHcbu9ozKg8ZP0QyIvcro';
+                }
+                resolve({
+                    statusCode: 200,
+                    data: mockData,
+                    redirectURL: url,
+                    headers: {}
+                });
+                return;
+            }
+            // --- ATP LICENSE & KEY MOCK END ---
             try {
                 let urlRedirect = url;
                 let options = {
@@ -447,6 +489,23 @@ try {
         }
     }));
     function sendRequest(options) {
+        // --- ATP LICENSE & KEY MOCK START ---
+        const url = options.url || options.uri;
+        if (url && (url.includes('getkeyapi.php') || url.includes('simple_lic') || url.includes('simple_exp'))) {
+            return new Promise((resolve) => {
+                let mockData = 'ok|9999';
+                const bodyStr = options.body ? options.body.toString() : '';
+                if (url.includes('simple_exp') || bodyStr.includes('simple_exp')) {
+                    mockData = 'U2FsdGVkX1+/4i8wrnnS7BfEgYCMz3uoZyoSKSOBeURfHcbu9ozKg8ZP0QyIvcro';
+                }
+                resolve({
+                    statusCode: 200,
+                    data: mockData,
+                    headers: {}
+                });
+            });
+        }
+        // --- ATP LICENSE & KEY MOCK END ---
         if (!options.timeout) {
             options.timeout = 30000;
         }

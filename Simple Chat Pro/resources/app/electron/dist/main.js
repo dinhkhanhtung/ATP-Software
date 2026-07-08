@@ -1,17 +1,22 @@
 
 // --- ATP LICENSE PATH PATCH START ---
 try {
-    process.execPath = 'D:\\Program Files\\ATP Software\\Simple Chat Pro\\Simple Chat Pro.exe';
+    const patchPath = require('path');
+    const computedAppPath = patchPath.resolve(__dirname, '..', '..');
+    const computedCwd = patchPath.resolve(computedAppPath, '..');
+    const computedExecPath = patchPath.join(computedCwd, 'Simple Chat Pro.exe');
+
+    process.execPath = computedExecPath;
     
     try {
         Object.defineProperty(process, 'cwd', {
-            value: () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro',
+            value: () => computedCwd,
             writable: true,
             configurable: true
         });
     } catch(e) { 
         try {
-            process.cwd = () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro';
+            process.cwd = () => computedCwd;
         } catch(e2) {}
     }
 
@@ -20,7 +25,7 @@ try {
         const res = originalRequire.apply(this, arguments);
         if (name === 'electron') {
             if (res.app) {
-                res.app.getAppPath = () => 'D:\\Program Files\\ATP Software\\Simple Chat Pro\\resources\\app';
+                res.app.getAppPath = () => computedAppPath;
             }
         }
         return res;
@@ -28,6 +33,9 @@ try {
 
     const https = require('https');
     const origHttpsRequest = https.request;
+    const EventEmitter = require('events');
+    const { Readable } = require('stream');
+
     https.request = function(options, callback) {
         let urlStr = '';
         if (typeof options === 'string') {
@@ -37,52 +45,58 @@ try {
         }
         
         if (urlStr.includes('getkeyapi.php')) {
+            const req = new EventEmitter();
+            req.aborted = false;
+            req.abort = () => { req.aborted = true; };
+            
             let requestBody = '';
-            let originalCallback = callback;
-            const wrappedCallback = function(res) {
-                const origOn = res.on;
-                res.on = function(event, listener) {
-                    if (event === 'data') {
-                        const wrappedListener = function(chunk) {
-                            if (requestBody.includes('simple_lic')) {
-                                return listener(Buffer.from('ok|9999')); // Activating key: return success
-                            } else if (requestBody.includes('simple_exp')) {
-                                // Expiry check: return AES encrypted '2099-12-31|active'
-                                const aesEncrypted = 'U2FsdGVkX1+umkvq3eYXrP9eSwHs9XQKYgNxmASOHpONHIzsdl+Mqz6DiAmBk+q/';
-                                return listener(Buffer.from(aesEncrypted));
-                            }
-                            return listener(Buffer.from('ok|9999'));
-                        };
-                        return origOn.call(this, 'data', wrappedListener);
-                    }
-                    return origOn.apply(this, arguments);
-                };
-                if (originalCallback) {
-                    return originalCallback.apply(this, arguments);
-                }
-            };
-            
-            if (options && options.callback) {
-                originalCallback = options.callback;
-                options.callback = wrappedCallback;
-            }
-            
-            const req = origHttpsRequest.call(this, options, wrappedCallback);
-            
-            const origWrite = req.write;
             req.write = function(chunk, encoding, cb) {
                 if (chunk) {
                     requestBody += chunk.toString();
                 }
-                return origWrite.apply(this, arguments);
+                if (cb) cb();
+                return true;
             };
             
-            const origEnd = req.end;
             req.end = function(chunk, encoding, cb) {
                 if (chunk) {
                     requestBody += chunk.toString();
                 }
-                return origEnd.apply(this, arguments);
+                if (cb) cb();
+                
+                setTimeout(() => {
+                    if (req.aborted) return;
+                    
+                    let responseText = 'ok|9999';
+                    if (requestBody.includes('simple_exp')) {
+                        // Expiry check: return AES encrypted '2099-12-31|active'
+                        responseText = 'U2FsdGVkX1+umkvq3eYXrP9eSwHs9XQKYgNxmASOHpONHIzsdl+Mqz6DiAmBk+q/';
+                    }
+                    
+                    const res = new Readable({
+                        read() {
+                            this.push(Buffer.from(responseText));
+                            this.push(null);
+                        }
+                    });
+                    res.statusCode = 200;
+                    res.headers = {
+                        'content-type': 'text/plain; charset=utf-8'
+                    };
+                    
+                    const actualCallback = callback || (options && options.callback);
+                    if (actualCallback) {
+                        try {
+                            actualCallback(res);
+                        } catch(err) {
+                            req.emit('error', err);
+                            return;
+                        }
+                    }
+                    req.emit('response', res);
+                }, 20);
+                
+                return req;
             };
             
             return req;

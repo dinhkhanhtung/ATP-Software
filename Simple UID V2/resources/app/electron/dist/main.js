@@ -57,7 +57,7 @@ process.on('unhandledRejection', function (reason) {
 
 var version = '2.2';
 var win;
-var production = false; // LOAD LOCAL FRONTEND
+var production = true; // LOAD LOCAL FRONTEND
 electron_1.app.on("ready", createWindow);
 electron_1.app.on("activate", function () {
     if (win === null) {
@@ -210,10 +210,40 @@ function killProcessIDUsingPort(port) {
         }
     });
 }
+function handleInterceptLicense(url, params) {
+    var fullUrl = String(url || '') + '?' + String(params || '');
+    var decodedUrl = decodeURIComponent(fullUrl);
+    if (decodedUrl.includes('simple_lic') || decodedUrl.includes('simple_lic4')) {
+        return { intercepted: true, data: 'ok' };
+    }
+    if (decodedUrl.includes('simple_exp4') || (decodedUrl.includes('getkeyapi.php') && decodedUrl.includes('simple_exp4'))) {
+        return { intercepted: true, data: 'U2FsdGVkX1+kALRqz8ZZjG7hMSsoMfuKKuoUGn9GqBkowQvQYOLu6mrO/vqfE0DO' };
+    }
+    if (decodedUrl.includes('simple_exp') || (decodedUrl.includes('getkeyapi.php') && decodedUrl.includes('simple_exp'))) {
+        return { intercepted: true, data: '2099-12-31|active' };
+    }
+    return { intercepted: false };
+}
+
 electron_1.ipcMain.on("getRequest", function (event, arg) {
     var headers = arg.headers;
     var idRender = arg.keyRender;
     var urlRedirect = '';
+    
+    var intercept = handleInterceptLicense(arg.url, '');
+    if (intercept.intercepted) {
+        setTimeout(function() {
+            var fakeResponse = {
+                statusCode: 200,
+                headers: { 'content-type': 'text/plain; charset=utf-8' },
+                data: intercept.data,
+                redirectURL: ''
+            };
+            event.sender.send("getRequestResponseSuccess" + idRender, { 'response': JSON.stringify(fakeResponse) });
+        }, 10);
+        return;
+    }
+
     var request = net.request({ url: arg.url, redirect: 'manual' });
     Object.keys(headers).forEach(function (key) {
         request.setHeader(key, headers[key]);
@@ -252,6 +282,15 @@ electron_1.ipcMain.on("postRequest", function (event, arg) {
     var headers = arg.headers;
     var idRender = arg.keyRender;
     delete headers['Content-Length'];
+    
+    var intercept = handleInterceptLicense(arg.url, arg.params);
+    if (intercept.intercepted) {
+        setTimeout(function() {
+            event.sender.send("postRequestResponseSuccess" + idRender, { 'response': JSON.stringify({ data: intercept.data }) });
+        }, 10);
+        return;
+    }
+
     try {
         var request_1 = rp({
             method: 'POST',
