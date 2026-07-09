@@ -1,3 +1,20 @@
+// --- PORTABLE DATA CONFIG START ---
+var __portableDataDir;
+(function() {
+    const _electron = require('electron');
+    const _path = require('path');
+    const _fs = require('fs');
+    const _exeDir = _path.dirname(_electron.app.getPath('exe'));
+    const _dataDir = _path.join(_exeDir, 'data');
+    try { if (!_fs.existsSync(_dataDir)) _fs.mkdirSync(_dataDir, { recursive: true }); } catch(e) {}
+    _electron.app.setPath('userData', _dataDir);
+    _electron.app.setPath('appData', _dataDir);
+    try { _electron.app.setPath('cache', _path.join(_dataDir, 'cache')); } catch(e) {}
+    try { _electron.app.setPath('temp', _path.join(_dataDir, 'temp')); } catch(e) {}
+    try { _electron.app.setPath('logs', _path.join(_dataDir, 'logs')); } catch(e) {}
+    __portableDataDir = _dataDir;
+})();
+// --- PORTABLE DATA CONFIG END ---
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -46,12 +63,12 @@ var rp = require('request-promise');
 // Error logging setup to capture startup issues
 process.on('uncaughtException', function (err) {
     try {
-        fs.writeFileSync('C:\\Users\\ADMIN\\AppData\\Roaming\\SimpleUIDV2\\crash.log', 'Uncaught Exception:\n' + (err ? (err.stack || err.message || err) : 'Unknown error'));
+        fs.writeFileSync(require('path').join(__portableDataDir, 'crash.log'), 'Uncaught Exception:\n' + (err ? (err.stack || err.message || err) : 'Unknown error'));
     } catch (e) {}
 });
 process.on('unhandledRejection', function (reason) {
     try {
-        fs.writeFileSync('C:\\Users\\ADMIN\\AppData\\Roaming\\SimpleUIDV2\\crash.log', 'Unhandled Rejection:\n' + (reason ? (reason.stack || reason.message || reason) : 'Unknown reason'));
+        fs.writeFileSync(require('path').join(__portableDataDir, 'crash.log'), 'Unhandled Rejection:\n' + (reason ? (reason.stack || reason.message || reason) : 'Unknown reason'));
     } catch (e) {}
 });
 

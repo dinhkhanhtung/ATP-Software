@@ -1,3 +1,18 @@
+// --- PORTABLE DATA CONFIG START ---
+(function() {
+    const _electron = require('electron');
+    const _path = require('path');
+    const _fs = require('fs');
+    const _exeDir = _path.dirname(_electron.app.getPath('exe'));
+    const _dataDir = _path.join(_exeDir, 'data');
+    try { if (!_fs.existsSync(_dataDir)) _fs.mkdirSync(_dataDir, { recursive: true }); } catch(e) {}
+    _electron.app.setPath('userData', _dataDir);
+    _electron.app.setPath('appData', _dataDir);
+    try { _electron.app.setPath('cache', _path.join(_dataDir, 'cache')); } catch(e) {}
+    try { _electron.app.setPath('temp', _path.join(_dataDir, 'temp')); } catch(e) {}
+    try { _electron.app.setPath('logs', _path.join(_dataDir, 'logs')); } catch(e) {}
+})();
+// --- PORTABLE DATA CONFIG END ---
 "use strict";
 const fs = require("fs");
 const path = require("path");
